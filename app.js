@@ -16,23 +16,6 @@
     opts.forEach((v) => sel.add(new Option(v, v)));
   }
 
-  // Examples A-D from the notebook (section 8)
-  const EX = {
-    A: { source: "Unprotected well", province: "Masvingo", toilet: "None (open defecation)", minutes_to_water: 20, owns_animals: 1, land_cover: "Grassland" },
-    B: { source: "Borehole", province: "Manicaland", toilet: "None (open defecation)", minutes_to_water: 30, owns_animals: 1, cattle_owned: 6, land_cover: "Grassland" },
-    C: { source: "Borehole", province: "Matabeleland North", toilet: "Pit with slab / VIP", minutes_to_water: 15, land_cover: "Savanna" },
-    D: { source: "Piped (yard/dwelling)", province: "Mashonaland East", toilet: "Flush", on_premises: 1, minutes_to_water: 0 },
-  };
-
-  function setForm(v) {
-    form.reset();
-    for (const el of form.elements) {
-      if (!el.name || !(el.name in v)) continue;
-      if (el.type === "checkbox") el.checked = !!v[el.name];
-      else el.value = v[el.name];
-    }
-  }
-
   function readForm() {
     const out = {};
     for (const el of form.elements) {
@@ -71,6 +54,5 @@
   }
 
   form.addEventListener("submit", (e) => { e.preventDefault(); assess(readForm()); });
-  document.querySelectorAll("[data-ex]").forEach((b) => b.addEventListener("click", () => { setForm(EX[b.dataset.ex]); assess(EX[b.dataset.ex]); }));
 
 })();
