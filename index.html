@@ -10,21 +10,15 @@
 <main class="wrap only">
   {% if model_error %}
   <div class="alert">
-    <strong>The model file is not loaded yet.</strong> Put <code>water_source_risk_model.joblib</code> in the
-    <code>model/</code> folder and redeploy. Details: <code>{{ model_error }}</code>
+    <strong>The model could not be loaded.</strong> Download <code>water_source_risk_model.joblib</code> again from Colab
+    and upload it to GitHub, replacing any file called <code>download</code>.
+    Details: <code>{{ model_error }}</code>
   </div>
   {% endif %}
 
   <section id="assess" class="grid">
     <form id="form" class="card" autocomplete="off">
       <h2>Describe the source</h2>
-      <div class="examples">
-        <span>Try an example:</span>
-        <button type="button" data-ex="A">Unprotected well</button>
-        <button type="button" data-ex="B">Borehole, open defecation</button>
-        <button type="button" data-ex="C">Borehole, VIP latrine</button>
-        <button type="button" data-ex="D">Piped to yard</button>
-      </div>
 
       <label>Source type
         <select name="source" required></select>
@@ -72,7 +66,7 @@
     <div class="card result" id="result" aria-live="polite">
       <h2>Result</h2>
       <div id="empty" class="empty">
-        <p>Fill in the form or pick an example to see the model in action.</p>
+        <p>Fill in the form and click <strong>Assess this source</strong> to see the result.</p>
       </div>
       <div id="out" hidden>
         <div class="prob">
