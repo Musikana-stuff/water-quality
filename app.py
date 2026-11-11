@@ -12,9 +12,18 @@ from pathlib import Path
 import joblib
 import numpy as np
 import pandas as pd
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, abort, jsonify, render_template, request, send_from_directory
 
-MODEL_PATH = Path(os.environ.get("MODEL_PATH", Path(__file__).parent / "model" / "water_source_risk_model.joblib"))
+BASE = Path(__file__).parent
+
+# Works with the folder layout (model/, templates/, static/) or with every file in one folder.
+# The model file may also be called "download" if the browser saved it without its name.
+_CANDIDATES = [os.environ.get("MODEL_PATH"), BASE / "model" / "water_source_risk_model.joblib",
+               BASE / "water_source_risk_model.joblib", BASE / "model" / "download", BASE / "download"]
+MODEL_PATH = next((Path(c) for c in _CANDIDATES if c and Path(c).is_file()), BASE / "model" / "water_source_risk_model.joblib")
+TEMPLATE_DIR = BASE / "templates" if (BASE / "templates" / "index.html").is_file() else BASE
+STATIC_DIR = BASE / "static" if (BASE / "static" / "style.css").is_file() else BASE
+STATIC_FILES = {"style.css", "app.js"}
 
 ACTIONS = {
     "Presumed unsafe - no test needed": "Chlorinate or advise boiling now; plan protection/upgrade of the source; promote safe storage.",
@@ -22,7 +31,17 @@ ACTIONS = {
     "Test on routine schedule": "Keep on routine testing; re-test after heavy rain; promote safe storage (home water is often contaminated).",
 }
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=str(TEMPLATE_DIR), static_folder=None)
+
+
+def serve_static(filename):
+    # Only the page's own CSS and JS are served, never the model or source files.
+    if filename not in STATIC_FILES:
+        abort(404)
+    return send_from_directory(STATIC_DIR, filename)
+
+
+app.add_url_rule("/static/<path:filename>", endpoint="static", view_func=serve_static)
 
 try:
     BUNDLE = joblib.load(MODEL_PATH)
