@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Water Source Risk Tool</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="wrap only">
+  {% if model_error %}
+  <div class="alert">
+    <strong>The model file is not loaded yet.</strong> Put <code>water_source_risk_model.joblib</code> in the
+    <code>model/</code> folder and redeploy. Details: <code>{{ model_error }}</code>
+  </div>
+  {% endif %}
+
+  <section id="assess" class="grid">
+    <form id="form" class="card" autocomplete="off">
+      <h2>Describe the source</h2>
+      <div class="examples">
+        <span>Try an example:</span>
+        <button type="button" data-ex="A">Unprotected well</button>
+        <button type="button" data-ex="B">Borehole, open defecation</button>
+        <button type="button" data-ex="C">Borehole, VIP latrine</button>
+        <button type="button" data-ex="D">Piped to yard</button>
+      </div>
+
+      <label>Source type
+        <select name="source" required></select>
+      </label>
+      <div class="two">
+        <label>Province <select name="province"></select></label>
+        <label>Household toilet <select name="toilet"></select></label>
+      </div>
+      <div class="two">
+        <label>Land cover around the village <select name="land_cover"></select></label>
+        <label>Minutes to collect water <input type="number" name="minutes_to_water" min="0" max="600" step="1" placeholder="e.g. 20"></label>
+      </div>
+      <div class="two">
+        <label>Cattle owned by household <input type="number" name="cattle_owned" min="0" max="500" step="1" placeholder="e.g. 0"></label>
+        <label>Rain this month (mm, optional) <input type="number" name="rain_test_month_mm" min="0" max="1500" step="1" placeholder="leave blank if unknown"></label>
+      </div>
+      <div class="checks">
+        <label class="check"><input type="checkbox" name="on_premises"> Source is on the household's own plot</label>
+        <label class="check"><input type="checkbox" name="owns_animals"> Household owns animals</label>
+      </div>
+
+      <details>
+        <summary>More details (optional)</summary>
+        <div class="two">
+          <label>Wealth quintile (1 = poorest)
+            <select name="wealth_quintile"><option value="">Unknown</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          </label>
+          <label>Rain vs 30-year normal (%) <input type="number" name="rain_anomaly_pct" step="1" placeholder="e.g. -19"></label>
+        </div>
+        <div class="two">
+          <label>Cattle density (head per km²) <input type="number" name="cattle_density" min="0" step="any"></label>
+          <label>Elevation (m) <input type="number" name="elevation_m" step="any"></label>
+        </div>
+        <div class="two">
+          <label>Travel time to nearest city (min) <input type="number" name="minutes_to_city" min="0" step="any"></label>
+          <label>Population density (people per km²) <input type="number" name="population_density" min="0" step="any"></label>
+        </div>
+        <label>Aridity index (higher = wetter) <input type="number" name="aridity" step="any"></label>
+        <p class="hint">Anything left blank is filled with typical values from the survey.</p>
+      </details>
+
+      <button class="primary" type="submit">Assess this source</button>
+    </form>
+
+    <div class="card result" id="result" aria-live="polite">
+      <h2>Result</h2>
+      <div id="empty" class="empty">
+        <p>Fill in the form or pick an example to see the model in action.</p>
+      </div>
+      <div id="out" hidden>
+        <div class="prob">
+          <span id="pct">0%</span>
+          <small>chance of <em>E. coli</em> contamination</small>
+        </div>
+        <div class="bar"><div id="fill"></div><i style="left:50%"></i></div>
+        <div class="scale"><span>0%</span><span>50% test-first line</span><span>100%</span></div>
+        <div id="badge" class="badge"></div>
+        <p id="action" class="action"></p>
+        <p id="override" class="hint" hidden>This source type was at least 85% contaminated in the survey, so the triage rule treats it as unsafe whatever its score.</p>
+      </div>
+      <div id="err" class="alert" hidden></div>
+    </div>
+  </section>
+
+</main>
+
+<script>window.MODEL_INFO = {{ info|tojson }};</script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

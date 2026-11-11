@@ -1,0 +1,13 @@
+# Render Blueprint: deploys the water-source risk tool as a free web service.
+services:
+  - type: web
+    name: water-source-risk-tool
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    healthCheckPath: /health
+    envVars:
+      # Set this to the Python version your Colab printed (see export_model_from_colab.py)
+      - key: PYTHON_VERSION
+        value: "3.13.18"

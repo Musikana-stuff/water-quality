@@ -1,0 +1,7 @@
+# Versions match the Colab session that trained the model (do not change scikit-learn).
+scikit-learn==1.6.1
+numpy==2.4.6
+pandas==2.2.3
+joblib>=1.3
+flask>=3.0,<4
+gunicorn>=22.0
